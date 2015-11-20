@@ -3,6 +3,7 @@ TESTS += test_self
 TESTS += test_notify
 TESTS += test_iters
 TESTS += test_errno
+TESTS += live_test
 
 all: $(TESTS)
 
@@ -11,7 +12,7 @@ run: all
 
 define genb
 $(1): $(1).o lib.o
-	gcc $$^ -L ../../lib -L ../../protobuf -lcriu -o $$@
+	gcc $$^ -L ../../lib -L ../../protobuf -lcriu -o $$@ -pthread
 endef
 
 $(foreach t, $(TESTS), $(eval $(call genb, $(t))))

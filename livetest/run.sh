@@ -28,19 +28,18 @@ function run_test {
 	else
 		echo "== Test $1"
 		mkdir wdir/i/$1/
-		if ! setsid ./$1 wdir/s/cs.sk wdir/i/$1/ wdir/thread1.log wdir/thread2.log < /dev/null &>> wdir/i/$1/test.log; then
+		if ! setsid ./$1 wdir/s/cs.sk wdir/i/$1/ < /dev/null &>> wdir/i/$1/test.log; then
 			echo "$1: FAIL"
 			RESULT=1
 		fi
 	fi
 }
 
-#run_test test_sub
-#run_test test_self
-run_test live_test
-#run_test test_notify
-#run_test test_iters
-#run_test test_errno
+run_test test_sub
+run_test test_self
+run_test test_notify
+run_test test_iters
+run_test test_errno
 
 echo "== Stopping service"
 kill -TERM $(cat wdir/s/pidfile)
