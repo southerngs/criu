@@ -95,6 +95,49 @@ bad_ns:
 	return -1;
 }
 
+static int parse_unshare_arg(char *opt)
+{
+	while (1) {
+		char *aux;
+
+		aux = strchr(opt, ',');
+		if (aux)
+			*aux = '\0';
+
+		if (!strcmp(opt, "uts"))
+			opts.unshare_flags |= CLONE_NEWUTS;
+		else if (!strcmp(opt, "ipc"))
+			opts.unshare_flags |= CLONE_NEWIPC;
+		else if (!strcmp(opt, "mnt"))
+			opts.unshare_flags |= CLONE_NEWNS;
+		else if (!strcmp(opt, "pid"))
+			opts.unshare_flags |= CLONE_NEWPID;
+		else if (!strcmp(opt, "net"))
+			opts.unshare_flags |= CLONE_NEWNET;
+		else if (!strcmp(opt, "user"))
+			opts.unshare_flags |= CLONE_NEWUSER;
+		else if (!strcmp(opt, "proc"))
+			opts.unshare_flags |= 0x1; /* mount new proc */
+		else {
+			pr_msg("Error: unknown unshare flag %s\n", opt);
+			return -1;
+		}
+
+		if (!aux)
+			break;
+
+		opt = aux + 1;
+	}
+
+	/* Only pid, mnt and user for now */
+	if (opts.unshare_flags) {
+		pr_err("Unsharing this namespace(s) is not supported yet\n");
+		return -1;
+	}
+
+	return 0;
+}
+
 static int parse_cpu_cap(struct cr_options *opts, const char *optarg)
 {
 	bool inverse = false;
@@ -255,6 +298,7 @@ int main(int argc, char *argv[], char *envp[])
 		{ "ghost-limit",		required_argument,	0, 1069 },
 		{ "irmap-scan-path",		required_argument,	0, 1070 },
 		{ "lsm-profile",		required_argument,	0, 1071 },
+		{ "unshare",			required_argument,	0, 1072 },
 		{ },
 	};
 
@@ -504,6 +548,10 @@ int main(int argc, char *argv[], char *envp[])
 			if (parse_lsm_arg(optarg) < 0)
 				return -1;
 			break;
+		case 1072:
+			if (parse_unshare_arg(optarg))
+				return -1;
+			break;
 		case 'M':
 			{
 				char *aux;
@@ -714,6 +762,7 @@ usage:
 "                        'cpu','fpu','all','ins','none'. To disable capability, prefix it with '^'.\n"
 "     --exec-cmd         execute the command specified after '--' on successful\n"
 "                        restore making it the parent of the restored process\n"
+"  --unshare FLAGS       what namespaces to unshare when restoring\n"
 "  --freeze-cgroup\n"
 "                        use cgroup freezer to collect processes\n"
 "\n"
