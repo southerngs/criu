@@ -321,7 +321,7 @@ static int dump_one_link(struct nlmsghdr *hdr, void *arg)
 	parse_rtattr(tb, IFLA_MAX, IFLA_RTA(ifi), len);
 	pr_info("\tLD: Got link %d, type %d\n", ifi->ifi_index, ifi->ifi_type);
 
-	if (ifi->ifi_type == ARPHRD_LOOPBACK) 
+	if (ifi->ifi_type == ARPHRD_LOOPBACK)
 		return dump_one_netdev(ND_TYPE__LOOPBACK, ifi, tb, fds, NULL);
 
 	kind = link_kind(ifi, tb);
@@ -1062,16 +1062,18 @@ int dump_net_ns(int ns_id)
 		return -1;
 
 	ret = mount_ns_sysfs();
-	if (!ret)
-		ret = dump_netns_conf(fds);
-	if (!ret)
-		ret = dump_links(fds);
-	if (!ret)
-		ret = dump_ifaddr(fds);
-	if (!ret)
-		ret = dump_route(fds);
-	if (!ret)
-		ret = dump_rule(fds);
+	if (!(opts.empty_ns & CLONE_NEWNET)) {
+		if (!ret)
+			ret = dump_netns_conf(fds);
+		if (!ret)
+			ret = dump_links(fds);
+		if (!ret)
+			ret = dump_ifaddr(fds);
+		if (!ret)
+			ret = dump_route(fds);
+		if (!ret)
+			ret = dump_rule(fds);
+	}
 	if (!ret)
 		ret = dump_iptables(fds);
 	if (!ret)
@@ -1088,21 +1090,24 @@ int dump_net_ns(int ns_id)
 
 int prepare_net_ns(int pid)
 {
-	int ret;
+	int ret = 0;
 	NetnsEntry *netns = NULL;
 
-	ret = restore_netns_conf(pid, &netns);
-	if (!ret)
-		ret = restore_links(pid, &netns);
-	if (netns)
-		netns_entry__free_unpacked(netns, NULL);
+	if (!(opts.empty_ns & CLONE_NEWNET)) {
+		ret = restore_netns_conf(pid, &netns);
+		if (!ret)
+			ret = restore_links(pid, &netns);
+		if (netns)
+			netns_entry__free_unpacked(netns, NULL);
 
-	if (!ret)
-		ret = restore_ifaddr(pid);
-	if (!ret)
-		ret = restore_route(pid);
-	if (!ret)
-		ret = restore_rule(pid);
+		if (!ret)
+			ret = restore_ifaddr(pid);
+		if (!ret)
+			ret = restore_route(pid);
+		if (!ret)
+			ret = restore_rule(pid);
+	}
+
 	if (!ret)
 		ret = restore_iptables(pid);
 	if (!ret)
