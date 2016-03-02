@@ -8,6 +8,9 @@
 #include <ctype.h>
 #include <sched.h>
 
+#include <linux/random.h>
+#include <syscall.h>
+
 #include <fcntl.h>
 
 #include <sys/types.h>
@@ -44,6 +47,7 @@
 #include "proc_parse.h"
 
 #include "setproctitle.h"
+
 
 struct cr_options opts;
 
@@ -217,6 +221,11 @@ int main(int argc, char *argv[], char *envp[])
 	int log_level = LOG_UNSET;
 	char *imgs_dir = ".";
 	char *work_dir = NULL;
+
+  unsigned int random_num;
+  syscall(SYS_getrandom, &random_num, sizeof(unsigned int), NULL);
+  srand(random_num);
+
 	static const char short_opts[] = "dSsRf:F:t:p:hcD:o:n:v::x::Vr:jlW:L:M:";
 	static struct option long_opts[] = {
 		{ "tree",			required_argument,	0, 't'	},
