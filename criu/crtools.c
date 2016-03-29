@@ -623,9 +623,6 @@ int main(int argc, char *argv[], char *envp[])
 			else {
 				pr_err("Unsupported empty namespace: %s", optarg);
 				return 1;
-<<<<<<< HEAD:crtools.c
-		}
-=======
 			}
 			break;
 		case 1077:
@@ -637,7 +634,6 @@ int main(int argc, char *argv[], char *envp[])
 		case 1079:
 			opts.check_extra_features = true;
 			opts.check_experimental_features = true;
->>>>>>> mainline/criu-dev:criu/crtools.c
 			break;
 		case 'V':
 			pr_msg("Version: %s\n", CRIU_VERSION);
