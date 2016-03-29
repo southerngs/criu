@@ -1,4 +1,4 @@
-define TCP_REPAIR_TEST
+define FEATURE_TEST_TCP_REPAIR
 
 #include <netinet/tcp.h>
 
@@ -12,7 +12,7 @@ int main(void)
 }
 endef
 
-define PRLIMIT_TEST
+define FEATURE_TEST_PRLIMIT
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -30,7 +30,7 @@ int main(void)
 }
 endef
 
-define LIBBSD_DEV_TEST
+define FEATURE_TEST_LIBBSD_DEV
 #include <bsd/string.h>
 
 int main(void)
@@ -39,7 +39,7 @@ int main(void)
 }
 endef
 
-define STRLCPY_TEST
+define FEATURE_TEST_STRLCPY
 
 #include <string.h>
 
@@ -53,7 +53,7 @@ int main(void)
 }
 endef
 
-define STRLCAT_TEST
+define FEATURE_TEST_STRLCAT
 
 #include <string.h>
 
@@ -67,7 +67,7 @@ int main(void)
 }
 endef
 
-define PTRACE_PEEKSIGINFO_TEST
+define FEATURE_TEST_PTRACE_PEEKSIGINFO
 
 #include <sys/ptrace.h>
 
@@ -80,7 +80,7 @@ int main(void)
 
 endef
 
-define SETPROCTITLE_INIT_TEST
+define FEATURE_TEST_SETPROCTITLE_INIT
 
 #include <bsd/unistd.h>
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[], char *envp[])
 
 endef
 
-define MEMFD_TEST
+define FEATURE_TEST_MEMFD
 
 #include <unistd.h>
 #include <sys/syscall.h>
@@ -103,8 +103,23 @@ int main(void)
 #ifdef __NR_memfd_create
 	return 0;
 #else
-#error No memfd support
+# error No memfd support
 #endif
+}
+
+endef
+
+define FEATURE_TEST_UFFD
+
+#include <syscall.h>
+#include <linux/userfaultfd.h>
+
+int main(void)
+{
+#ifndef __NR_userfaultfd
+#error "missing __NR_userfaultfd definition"
+#endif
+	return 0;
 }
 
 endef

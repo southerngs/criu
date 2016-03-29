@@ -1,17 +1,25 @@
+function exit_hook()
+{
+	test -z "$GCOV" && return
+	make gcov
+}
+
 function prep()
 {
 	# systemd executes jenkins in a separate sched cgroup.
 	echo 950000 > /sys/fs/cgroup/cpu,cpuacct/system/cpu.rt_runtime_us || true
 	echo 950000 > /sys/fs/cgroup/cpu,cpuacct/system/jenkins.service/cpu.rt_runtime_us || true
 
+	test -n "$GCOV" && umask 0000
+
 	ulimit -c unlimited &&
 	export CFLAGS=-g
 	git clean -dfx &&
 	make -j 4 &&
-	make -j 4 -C test/zdtm/live &&
+	make -j 4 -C test/zdtm/ &&
 	make -C test zdtm_ct &&
 	mkdir -p test/report &&
-	true
+	trap exit_hook EXIT
 }
 
 function mount_tmpfs_to_dump()
