@@ -823,7 +823,7 @@ static void transport_name_gen(struct sockaddr_un *addr, int *len,
 		int pid, int fd)
 {
 	addr->sun_family = AF_UNIX;
-  int ran_num = rand();
+  int ran_num = rand() % 10000;
 	snprintf(addr->sun_path, UNIX_PATH_MAX, "x/crtools-fd-%d-%d-%d", pid, fd, ran_num);
 	*len = SUN_LEN(addr);
 	*addr->sun_path = '\0';
